@@ -83,8 +83,9 @@
     '<nav class="footer__col" aria-label="روابط"><h3 class="footer__title">روابط</h3><ul class="footer__links">' +
       '<li><a href="about.html">من نحن</a></li>' +
       '<li><a href="contact.html">اتصل بنا</a></li>' +
-      '<li><a href="http://qudsnen.co">English</a></li>' +
+      '<li><a href="articles.html">كل المقالات</a></li>' +
       '<li><a href="videos.html">قدس فيديو</a></li>' +
+      '<li><a href="http://qudsnen.co">English</a></li>' +
     '</ul></nav>' +
     '<div class="footer__col"><h3 class="footer__title">تابعونا مباشرة</h3>' +
       '<a href="https://t.me/QudsN" class="footer-channel footer-channel--tg"><i class="fa-brands fa-telegram" aria-hidden="true"></i>' +
