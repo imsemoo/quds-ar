@@ -364,10 +364,33 @@
   }
 
   /* ------------------------------------------------------------------
+     12) BREAKING-NEWS TICKER  (continuous Swiper marquee)
+     Runs regardless of reduced-motion (informational), pauses on hover.
+     ------------------------------------------------------------------ */
+  function initTicker() {
+    if (typeof window.Swiper === 'undefined') return;
+    var el = document.querySelector('.ticker__swiper');
+    if (!el) return;
+    el.dir = 'rtl';
+    new window.Swiper(el, {
+      slidesPerView: 'auto',
+      spaceBetween: 0,
+      loop: true,
+      freeMode: true,                 // continuous (not slide-by-slide)
+      speed: 6000,                    // readable scroll speed
+      allowTouchMove: false,
+      grabCursor: false,
+      a11y: false,
+      autoplay: { delay: 0, disableOnInteraction: false, pauseOnMouseEnter: true }
+    });
+  }
+
+  /* ------------------------------------------------------------------
      BOOT
      ------------------------------------------------------------------ */
   function boot() {
     initSwipers();
+    initTicker();
     initAOS();
     initCounters();
     initSearch();
