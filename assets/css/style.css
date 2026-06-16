@@ -66,6 +66,7 @@ img{max-width:100%;display:block}
 button{font-family:inherit}
 ul,ol{margin:0;padding:0;list-style:none}
 ::selection{background:var(--accent);color:#fff}
+[hidden]{display:none!important}   /* the hidden attribute must always win over display rules */
 
 /* word handling for Arabic */
 h1,h2,h3,.card__title,.feature-card__title,.story__title,.tl-card__title,
@@ -76,6 +77,12 @@ h1,h2,h3,.card__title,.feature-card__title,.story__title,.tl-card__title,
   overflow-wrap:break-word;
   word-break:normal;
 }
+
+/* ---------- Line-clamp utilities ---------- */
+.clamp-1,.clamp-2,.clamp-3{display:-webkit-box;-webkit-box-orient:vertical;overflow:hidden}
+.clamp-1{-webkit-line-clamp:1}
+.clamp-2{-webkit-line-clamp:2}
+.clamp-3{-webkit-line-clamp:3}
 
 /* ---------- Accessibility helpers ---------- */
 .sr-only{

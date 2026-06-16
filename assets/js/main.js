@@ -225,6 +225,145 @@
   }
 
   /* ------------------------------------------------------------------
+     7) SHARE BUTTONS  (article / podcast pages)
+     ------------------------------------------------------------------ */
+  function toast(msg) {
+    var t = document.createElement('div');
+    t.className = 'qd-toast';
+    t.textContent = msg;
+    document.body.appendChild(t);
+    requestAnimationFrame(function () { t.classList.add('is-show'); });
+    setTimeout(function () {
+      t.classList.remove('is-show');
+      setTimeout(function () { t.remove(); }, 300);
+    }, 2200);
+  }
+
+  function initShare() {
+    var btns = document.querySelectorAll('[data-share]');
+    if (!btns.length) return;
+    btns.forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        var url = encodeURIComponent(btn.getAttribute('data-url') || location.href);
+        var title = encodeURIComponent(btn.getAttribute('data-title') || document.title);
+        var type = btn.getAttribute('data-share');
+        var target = '';
+        if (type === 'facebook') target = 'https://www.facebook.com/sharer/sharer.php?u=' + url;
+        else if (type === 'x') target = 'https://twitter.com/intent/tweet?url=' + url + '&text=' + title;
+        else if (type === 'whatsapp') target = 'https://api.whatsapp.com/send?text=' + title + '%20' + url;
+        else if (type === 'telegram') target = 'https://t.me/share/url?url=' + url + '&text=' + title;
+        else if (type === 'copy') {
+          var raw = btn.getAttribute('data-url') || location.href;
+          if (navigator.clipboard) navigator.clipboard.writeText(raw).then(function () { toast('تم نسخ الرابط'); });
+          else { var ta = document.createElement('textarea'); ta.value = raw; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); toast('تم نسخ الرابط'); } catch (e2) {} ta.remove(); }
+          return;
+        }
+        if (target) window.open(target, '_blank', 'noopener,width=640,height=560');
+      });
+    });
+  }
+
+  /* ------------------------------------------------------------------
+     8) AUDIO PLAYER  (single podcast)
+     ------------------------------------------------------------------ */
+  function fmt(s) {
+    if (!s || isNaN(s)) return '0:00';
+    var m = Math.floor(s / 60), sec = Math.floor(s % 60);
+    return m + ':' + (sec < 10 ? '0' : '') + sec;
+  }
+  function initAudioPlayer() {
+    document.querySelectorAll('.audio-player').forEach(function (pl) {
+      var audio = pl.querySelector('audio');
+      var play = pl.querySelector('.audio-player__play');
+      var track = pl.querySelector('.audio-player__track');
+      var prog = pl.querySelector('.audio-player__progress');
+      var cur = pl.querySelector('[data-cur]');
+      var dur = pl.querySelector('[data-dur]');
+      if (!audio || !play) return;
+      var icon = play.querySelector('i');
+
+      play.addEventListener('click', function () {
+        if (audio.paused) audio.play(); else audio.pause();
+      });
+      audio.addEventListener('play', function () { if (icon) icon.className = 'fa-solid fa-pause'; });
+      audio.addEventListener('pause', function () { if (icon) icon.className = 'fa-solid fa-play'; });
+      audio.addEventListener('loadedmetadata', function () { if (dur) dur.textContent = fmt(audio.duration); });
+      audio.addEventListener('timeupdate', function () {
+        var p = audio.duration ? (audio.currentTime / audio.duration) * 100 : 0;
+        if (prog) prog.style.width = p + '%';
+        if (cur) cur.textContent = fmt(audio.currentTime);
+      });
+      if (track) track.addEventListener('click', function (e) {
+        var r = track.getBoundingClientRect();
+        // RTL-aware: distance from the right edge
+        var ratio = (r.right - e.clientX) / r.width;
+        if (audio.duration) audio.currentTime = Math.min(1, Math.max(0, ratio)) * audio.duration;
+      });
+      pl.querySelectorAll('.audio-player__btn[data-seek]').forEach(function (b) {
+        b.addEventListener('click', function () { audio.currentTime += parseFloat(b.getAttribute('data-seek')); });
+      });
+      pl.querySelectorAll('.audio-player__btn[data-rate]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          audio.playbackRate = parseFloat(b.getAttribute('data-rate'));
+          pl.querySelectorAll('[data-rate]').forEach(function (x) { x.classList.remove('is-active'); });
+          b.classList.add('is-active');
+        });
+      });
+    });
+  }
+
+  /* ------------------------------------------------------------------
+     9) CONTACT FORM
+     ------------------------------------------------------------------ */
+  function initContactForm() {
+    var form = document.getElementById('contactForm');
+    if (!form) return;
+    var success = document.getElementById('contactSuccess');
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (!form.checkValidity()) { form.reportValidity(); return; }
+      if (success) { success.hidden = false; success.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+      form.reset();
+    });
+  }
+
+  /* ------------------------------------------------------------------
+     10) ARCHIVE FILTERS  (client-side category filtering)
+     ------------------------------------------------------------------ */
+  function initFilters() {
+    var chips = document.querySelectorAll('.filter-chip[data-filter]');
+    if (!chips.length) return;
+    var items = document.querySelectorAll('[data-cat-item]');
+    chips.forEach(function (chip) {
+      chip.addEventListener('click', function () {
+        chips.forEach(function (c) { c.classList.remove('is-active'); });
+        chip.classList.add('is-active');
+        var f = chip.getAttribute('data-filter');
+        items.forEach(function (it) {
+          var show = (f === 'all') || it.getAttribute('data-cat-item') === f;
+          it.style.display = show ? '' : 'none';
+        });
+      });
+    });
+  }
+
+  /* ------------------------------------------------------------------
+     11) QUERY-PARAM TITLES  (category / tag / search pages)
+     ------------------------------------------------------------------ */
+  function initQueryTitles() {
+    var params = new URLSearchParams(location.search);
+    document.querySelectorAll('[data-from-query]').forEach(function (el) {
+      var key = el.getAttribute('data-from-query');
+      var val = params.get(key);
+      if (val) {
+        el.textContent = decodeURIComponent(val);
+        if (el.hasAttribute('data-title-prefix')) document.title = decodeURIComponent(val) + ' — شبكة قدس الإخبارية';
+      }
+    });
+  }
+
+  /* ------------------------------------------------------------------
      BOOT
      ------------------------------------------------------------------ */
   function boot() {
@@ -234,6 +373,11 @@
     initSearch();
     initNav();
     initNewsletter();
+    initShare();
+    initAudioPlayer();
+    initContactForm();
+    initFilters();
+    initQueryTitles();
   }
 
   if (document.readyState === 'loading') {
