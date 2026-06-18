@@ -2443,9 +2443,9 @@ h3,
    align-items: center;
    gap: 12px;
    margin-bottom: 18px;
-   background: #fff;
-   padding: 10px 14px;
-   border-radius: 12px
+    filter: brightness(0) invert(1);
+
+
 }
 
 .footer__brand img {
